@@ -14,11 +14,11 @@ Patches only add files; no upstream file is edited, so syncs cannot conflict.
 Deliberately not patched, handled by the workstation instead:
 
 - **Update check.** Flipping its default breaks 37 upstream tests that assume it is enabled. Set `ARCHIFY_UPDATE_CHECK_DISABLED=1` in the environment.
-- **Draft folder.** Editing `archify/SKILL.md` requires rebuilding the committed `archify.zip` (upstream's builder accepts only Node 22 with a specific zlib), and a test enforces it. `SKILL.md` already honors a user-named location, so the workstation's routing rule names `.tmp/archify/`.
+- **Draft folder.** Editing `archify/SKILL.md` requires rebuilding the committed `archify.zip` (upstream's builder accepts only Node 22 with a specific zlib), and a test enforces it. `SKILL.md` already honors a user-named location, so the workstation names it in its own documentation.
 
-## Monthly sync
+## Upstream sync
 
-Sync from upstream release tags only, never upstream `main` (website and sponsor churn) or `dev` (unreleased core work). Skip the month when no new tag exists.
+Sync only when the pinned version gives low-quality results that a newer upstream release fixes; there is no schedule. Sync from upstream release tags only, never upstream `main` (website and sponsor churn) or `dev` (unreleased core work).
 
 ```sh
 git fetch upstream --tags
