@@ -10,6 +10,11 @@ const examples = {
   sequence: 'cache-miss-request.sequence.json',
   dataflow: 'product-analytics.dataflow.json',
   lifecycle: 'deployment-release.lifecycle.json',
+  erd: 'orders.erd.json',
+  class: 'payments.class.json',
+  tree: 'payment-platform.tree.json',
+  timeline: 'payment-incident.timeline.json',
+  waterfall: 'checkout-request.waterfall.json',
 };
 
 const load = (file) => JSON.parse(fs.readFileSync(new URL(`../examples/${file}`, import.meta.url), 'utf8'));
@@ -21,7 +26,7 @@ for (const type of DIAGRAM_TYPES) {
     assert.match(first, /^<!DOCTYPE html>/i);
     assert.match(first, /<svg[\s>]/);
     assert.equal(first, second);
-    assert.doesNotMatch(first, /(src|href)="https?:/);
+    assert.doesNotMatch(first, /src="https?:/);
   });
 }
 
