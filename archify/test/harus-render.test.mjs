@@ -10,6 +10,11 @@ const examples = {
   sequence: 'cache-miss-request.sequence.json',
   dataflow: 'product-analytics.dataflow.json',
   lifecycle: 'deployment-release.lifecycle.json',
+  erd: 'orders.erd.json',
+  class: 'payments.class.json',
+  tree: 'payment-platform.tree.json',
+  timeline: 'payment-incident.timeline.json',
+  waterfall: 'checkout-request.waterfall.json',
 };
 
 const load = (file) => JSON.parse(fs.readFileSync(new URL(`../examples/${file}`, import.meta.url), 'utf8'));
