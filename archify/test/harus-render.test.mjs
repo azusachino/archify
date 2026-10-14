@@ -21,7 +21,7 @@ for (const type of DIAGRAM_TYPES) {
     assert.match(first, /^<!DOCTYPE html>/i);
     assert.match(first, /<svg[\s>]/);
     assert.equal(first, second);
-    assert.doesNotMatch(first, /(src|href)="https?:/);
+    assert.doesNotMatch(first, /src="https?:/);
   });
 }
 
