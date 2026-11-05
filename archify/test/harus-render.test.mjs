@@ -15,6 +15,7 @@ const examples = {
   tree: 'payment-platform.tree.json',
   timeline: 'payment-incident.timeline.json',
   waterfall: 'checkout-request.waterfall.json',
+  explainer: 'delivery.explainer.json',
 };
 
 const load = (file) => JSON.parse(fs.readFileSync(new URL(`../examples/${file}`, import.meta.url), 'utf8'));
