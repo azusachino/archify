@@ -44,7 +44,7 @@ Consumers install the package from a tarball attached to a release of this fork,
 
 ```sh
 tag=harus-$(date +%Y.%m.%d)                      # append .2 for a second release the same day
-(cd archify && npm pack --pack-destination ../.tmp-release)
+mkdir -p .tmp-release && (cd archify && npm pack --pack-destination ../.tmp-release)
 asset=archify-$(jq -r .version archify/package.json)-${tag#harus-}.tgz
 mv .tmp-release/archify-*.tgz ".tmp-release/$asset"
 git tag -a "$tag" -m "archify $tag" main && git push origin "$tag"
