@@ -476,7 +476,7 @@
     agentRevision++;
     agentTabs.forEach(t => { const on = t === tab; t.setAttribute('aria-selected', String(on)); t.tabIndex = on ? 0 : -1; });
     $('agent-copy-status').textContent = '';
-    agentCommand.textContent = `npx -y skills add tt-a1i/archify --skill archify --agent ${tab.dataset.agent} --global --copy --yes`;
+    agentCommand.textContent = `npx -y skills@latest add https://archify.si --skill archify --agent ${tab.dataset.agent} --global --copy --yes`;
     if (focus) tab.focus();
   }
   agentTabs.forEach((tab, i) => {
@@ -493,13 +493,16 @@
   document.querySelectorAll('.cmd-copy').forEach(button => {
     let attempt = 0;
     const status = $(button.getAttribute('aria-describedby'));
+    const fallbackText = button.dataset.copyText ? $('hero-copy-fallback') : null;
     const sourceText = () => button.dataset.copyText || $(button.dataset.copyFrom).textContent;
     button.addEventListener('click', async () => {
       const current = ++attempt, text = sourceText(), revision = agentRevision;
       status.textContent = '';
+      if (fallbackText) fallbackText.hidden = true;
       const isCurrent = () => current === attempt && (!button.dataset.copyFrom || revision === agentRevision) && text === sourceText();
       const ok = await ArchifyClipboard.copy(text, isCurrent);
       if (!isCurrent()) return;
+      if (fallbackText) fallbackText.hidden = ok;
       status.textContent = LANGS[lang][ok ? 'copySuccess' : 'copyFailure'];
     });
   });
