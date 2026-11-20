@@ -9,13 +9,20 @@ Patches only add files; no upstream file is edited, so syncs cannot conflict.
 | Patch | Files | Why |
 | --- | --- | --- |
 | Importable render API | `archify/lib/render.mjs`, `archify/test/harus-render.test.mjs` | `renderHtml(type, diagram, { quality, repoRoot })` returns standalone HTML, so a docs build can render committed JSON. It runs the unmodified upstream renderer in a child process. |
-| Release tarball | `archify/.npmignore` | Keeps demo pages, tests and generators out of the `npm pack` tarball consumers install. |
+| Release tarball | `archify/.npmignore` | Keeps demo pages, tests, generators and `skill-release.json` out of the `npm pack` tarball consumers install. Without the release metadata the update check stops before any cache write or fetch. |
+| Runtime contract test | `archify/test/harus-runtime.test.mjs` | Fails when a sync ships the release metadata again or adds a network call to the shipped code. |
 | These notes | `HARUS.md` | Patch list and sync procedure. |
 
 Deliberately not patched, handled by the workstation instead:
 
-- **Update check.** Flipping its default breaks 37 upstream tests that assume it is enabled. Set `ARCHIFY_UPDATE_CHECK_DISABLED=1` in the environment.
+- **Update check code.** Flipping its default breaks 37 upstream tests that assume it is enabled; leaving its release metadata out of the tarball disarms it instead.
 - **Draft folder.** Editing `archify/SKILL.md` requires rebuilding the committed `archify.zip` (upstream's builder accepts only Node 22 with a specific zlib), and a test enforces it. `SKILL.md` already honors a user-named location, so the workstation names it in its own documentation.
+
+## Runtime contract
+
+For the workstation, the blog and Apricot, the release tarball is a render runtime and nothing else. It turns diagram JSON into standalone HTML and checks that HTML locally (schema validation, layout gates, a headless browser check). It never reaches the network, never writes outside the input and output paths it is given and the system temp directory, and never opens an application unless a person passes `--open`. Its update notices and install instructions do not apply here: consumers move between releases by changing the pinned URL.
+
+Run `node --test test/harus-runtime.test.mjs test/harus-render.test.mjs` in `archify/` before every release; the first enforces this contract.
 
 ## Upstream sync
 
@@ -26,7 +33,7 @@ git fetch upstream --tags
 git log --oneline main..upstream/main -- archify   # what would change in the package
 git switch -c sync/upstream-main-<YYYYMMDD> main
 git merge upstream/main                            # resolve conflicts in the patch files above
-cd archify && npm ci && timeout 900 npm test
+cd archify && npm ci && timeout 900 npm test && node --test test/harus-*.test.mjs
 ```
 
 Then open a PR into this fork's `main` (`--repo azusachino/archify`; the default target is upstream) and merge it. Then cut a personal release and move each consumer to its tarball.
