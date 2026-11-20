@@ -158,8 +158,8 @@ test('real Chrome: agent guide stays readable and navigable in both languages, t
         assert.equal(await evaluate('location.pathname'), new URL(urlFor('start', lang)).pathname);
         assert.equal(await evaluate('location.hash'), '#install');
         assert.equal(await evaluate(`document.querySelector('[data-agent="${agent}"]').getAttribute('aria-selected')`), 'true');
-        assert.equal(await evaluate('document.getElementById("install-command").textContent.trim()'), `npx -y skills add tt-a1i/archify --skill archify --agent ${agent} --global --copy --yes`);
-        assert.equal(await evaluate('document.getElementById("project-command").textContent.trim()'), `npx -y skills add tt-a1i/archify --skill archify --agent ${agent} --copy --yes`);
+        assert.equal(await evaluate('document.getElementById("install-command").textContent.trim()'), `npx -y skills@latest add https://archify.si --skill archify --agent ${agent} --global --copy --yes`);
+        assert.equal(await evaluate('document.getElementById("project-command").textContent.trim()'), `npx -y skills@latest add https://archify.si --skill archify --agent ${agent} --copy --yes`);
         await loadedAction(() => evaluate(`document.querySelector('.setup-guide-link a').click()`));
         assert.equal(await evaluate('location.pathname'), new URL(urlFor('agent-diagrams', lang)).pathname);
         assert.equal(await evaluate('location.hash'), '#setup');
@@ -239,8 +239,12 @@ test('real Chrome: agent guide stays readable and navigable in both languages, t
       assert.equal(await evaluate('location.pathname'), `${mount}/cases/life/leave-plan.workflow.html`);
       assert.equal(await evaluate('!!document.querySelector("svg")'), true, 'the existing linked workflow artifact loads');
       await navigate(urlFor('agent-diagrams', other));
-      await loadedAction(() => evaluate(`document.querySelector('.article-footer a').click()`));
+      await loadedAction(() => evaluate(`document.querySelector('.article-footer a[href*="start"]').click()`));
       assert.equal(await evaluate('location.pathname'), new URL(urlFor('start', other)).pathname);
+      await navigate(urlFor('agent-diagrams', other));
+      await loadedAction(() => evaluate(`document.querySelector('.article-footer a[href*="compare"]').click()`));
+      assert.equal(await evaluate('location.pathname'), new URL(urlFor('compare', other)).pathname);
+      await navigate(urlFor('start', other));
       await loadedAction(() => evaluate(`document.querySelector('.agent-guide-link a').click()`));
       assert.equal(await evaluate('location.pathname'), new URL(urlFor('agent-diagrams', other)).pathname);
       await navigate(urlFor('guide', lang));
