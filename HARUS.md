@@ -1,6 +1,6 @@
 # harus fork of Archify
 
-`azusachino/archify` snapshots [tt-a1i/archify](https://github.com/tt-a1i/archify) and carries a small patch set for the harus workstation. `main` is upstream plus these patches; it is installed as a pinned skill source by the workstation's `make skills`.
+`azusachino/archify` snapshots [tt-a1i/archify](https://github.com/tt-a1i/archify) and carries a small patch set for the harus workstation. `main` is upstream plus these patches. The workstation, Apricot, the blog and the cluster site builder run `archify/` straight from a checkout of this `main` (the workstation keeps it at `vendor/archify` behind a thin pointer skill); nothing installs a copy.
 
 ## Patches
 
@@ -18,7 +18,7 @@ Deliberately not patched, handled by the workstation instead:
 
 ## Upstream sync
 
-Sync only when the pinned version gives low-quality results that a newer upstream release fixes; there is no schedule. Sync from upstream release tags only, never upstream `main` (website and sponsor churn) or `dev` (unreleased core work).
+Sync only when the current release gives low-quality results that a newer upstream release fixes; there is no schedule. Sync from upstream release tags only, never upstream `main` (website and sponsor churn) or `dev` (unreleased core work).
 
 ```sh
 git fetch upstream --tags
@@ -28,4 +28,4 @@ git merge <tag>                                   # resolve conflicts in the pat
 cd archify && npm ci && gtimeout 900 npm test
 ```
 
-Then open a PR into this fork's `main` (`--repo azusachino/archify`; the default target is upstream), merge it, bump the workstation's `[[skills.source]]` `ref` to the new `main` SHA, run `make skills` and rebuild the docs site there.
+Then open a PR into this fork's `main` (`--repo azusachino/archify`; the default target is upstream), merge it, then fast-forward the workstation checkout (`make sync NAMES=archify`) and rebuild the docs site there; the cluster site builder clones `main` on its next run.
