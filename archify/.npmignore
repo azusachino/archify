@@ -1,0 +1,6 @@
+# harus fork: what `npm pack` leaves out of the release tarball (see HARUS.md).
+# Rendered example pages are demos; the skill reads only examples/*.json.
+examples/*.html
+# Contributor-only: tests and the generators of committed files.
+test/
+scripts/generate-*.mjs

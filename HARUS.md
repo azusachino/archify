@@ -1,6 +1,6 @@
 # harus fork of Archify
 
-`azusachino/archify` snapshots [tt-a1i/archify](https://github.com/tt-a1i/archify) and carries a small patch set for the harus workstation. `main` is upstream plus these patches. The workstation, Apricot, the blog and the cluster site builder run `archify/` straight from a checkout of this `main` (the workstation keeps it at `vendor/archify` behind a thin pointer skill); nothing installs a copy.
+`azusachino/archify` snapshots [tt-a1i/archify](https://github.com/tt-a1i/archify) and carries a small patch set for the harus workstation. `main` is upstream plus these patches. The workstation, Apricot and the blog install `archify/` as a package from a tarball on this fork's releases (see Personal releases); `vendor/archify` is only for working on the fork.
 
 ## Patches
 
@@ -9,6 +9,7 @@ Patches only add files; no upstream file is edited, so syncs cannot conflict.
 | Patch | Files | Why |
 | --- | --- | --- |
 | Importable render API | `archify/lib/render.mjs`, `archify/test/harus-render.test.mjs` | `renderHtml(type, diagram, { quality, repoRoot })` returns standalone HTML, so a docs build can render committed JSON. It runs the unmodified upstream renderer in a child process. |
+| Release tarball | `archify/.npmignore` | Keeps demo pages, tests and generators out of the `npm pack` tarball consumers install. |
 | These notes | `HARUS.md` | Patch list and sync procedure. |
 
 Deliberately not patched, handled by the workstation instead:
@@ -28,8 +29,20 @@ git merge upstream/main                            # resolve conflicts in the pa
 cd archify && npm ci && timeout 900 npm test
 ```
 
-Then open a PR into this fork's `main` (`--repo azusachino/archify`; the default target is upstream) and merge it. Fast-forward the workstation checkout (`make sync NAMES=archify`) and rebuild the docs site there; the cluster site builder clones `main` on its next run.
+Then open a PR into this fork's `main` (`--repo azusachino/archify`; the default target is upstream) and merge it. Then cut a personal release and move each consumer to its tarball.
 
-## Personal tags
+## Personal releases
 
-After each merged sync, tag the fork's `main` as `harus-<YYYY.MM.DD>` (append `.2` for a second sync the same day) and push the tag. The `harus-` prefix keeps these apart from upstream's `v*` release tags, which arrive with every fetch. A tag names a known-good package to return to: check it out in `vendor/archify` or point a build at it when a later sync misbehaves. `git describe --tags --match 'v*'` still shows which upstream release a tag builds on.
+Consumers install the package from a tarball attached to a release of this fork, pinned by URL in their `package.json`; nothing reads a checkout. After each merged sync or patch, from an up-to-date `main`:
+
+```sh
+tag=harus-$(date +%Y.%m.%d)                      # append .2 for a second release the same day
+(cd archify && npm pack --pack-destination ../.tmp-release)
+asset=archify-$(jq -r .version archify/package.json)-${tag#harus-}.tgz
+mv .tmp-release/archify-*.tgz ".tmp-release/$asset"
+git tag -a "$tag" -m "archify $tag" main && git push origin "$tag"
+gh release create "$tag" ".tmp-release/$asset" --repo azusachino/archify --title "$tag" --notes "<upstream revision and what changed>"
+rm -r .tmp-release
+```
+
+`archify/.npmignore` keeps the rendered example pages, tests and generators out of the tarball. The `harus-` prefix keeps these tags apart from upstream's `v*` release tags; `git describe --tags --match 'v*'` still shows which upstream release one builds on. To upgrade a consumer, change the URL in its `package.json` to the new asset and reinstall; to roll back, point it at an earlier one.
